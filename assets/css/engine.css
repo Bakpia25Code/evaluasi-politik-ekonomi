@@ -1,0 +1,73 @@
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  height:100%; overflow:hidden;
+  background:var(--bg); color:var(--txt);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* --- Panggung tetap 1600x900, diskalakan JS --- */
+#viewport{ position:fixed; inset:0; display:grid; place-items:center; background:var(--bg); }
+#stage{
+  position:relative; width:1600px; height:900px;
+  transform-origin:center center;
+  overflow:hidden; background:var(--bg);
+}
+
+/* --- Slide --- */
+.slide{
+  position:absolute; inset:0;
+  padding:74px 96px;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .45s ease, visibility .45s;
+}
+.slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
+.slide.full{ padding:0; }                    /* untuk slide foto penuh */
+
+.inner{ position:relative; z-index:2; display:flex; flex-direction:column; height:100%; }
+
+/* PENTING: pembungkus ini memusatkan isi secara vertikal.
+   Slide tanpa .body isinya menumpuk di atas dan menyisakan ruang kosong. */
+.body{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+
+.shead{ margin-bottom:34px; flex:none; }
+.sfoot{ flex:none; margin-top:24px; padding-top:16px; border-top:1px solid var(--line); }
+
+/* --- Latar foto penuh + Ken Burns --- */
+.bg{ position:absolute; inset:0; overflow:hidden; z-index:0; }
+.bg img{ width:100%; height:100%; object-fit:cover; transform:scale(1.06); }
+.slide.active .bg img{ animation:kenburns 22s ease-out forwards; }
+@keyframes kenburns{ from{transform:scale(1.06)} to{transform:scale(1.18)} }
+.scrim{ position:absolute; inset:0; }
+
+/* --- Animasi masuk bertahap --- */
+.rv{ opacity:0; transform:translateY(26px); }
+.slide.active .rv{ animation:rise .72s cubic-bezier(.2,.75,.25,1) forwards; }
+@keyframes rise{ to{opacity:1; transform:none} }
+.slide.active .rv:nth-child(1){animation-delay:.06s}
+.slide.active .rv:nth-child(2){animation-delay:.15s}
+.slide.active .rv:nth-child(3){animation-delay:.24s}
+.slide.active .rv:nth-child(4){animation-delay:.33s}
+.slide.active .rv:nth-child(5){animation-delay:.42s}
+.slide.active .rv:nth-child(6){animation-delay:.51s}
+.d1{animation-delay:.10s!important}.d2{animation-delay:.20s!important}
+.d3{animation-delay:.30s!important}.d4{animation-delay:.40s!important}
+.d5{animation-delay:.50s!important}.d6{animation-delay:.60s!important}
+.d7{animation-delay:.70s!important}.d8{animation-delay:.80s!important}
+
+/* --- Cetak / ekspor PDF --- */
+@media print{
+  @page{ size:1600px 900px; margin:0; }
+  html,body{ overflow:visible; height:auto; background:#fff; }
+  #viewport{ position:static; display:block; background:none; }
+  #stage{ width:1600px!important; height:auto!important; transform:none!important; }
+  .slide{
+    position:relative!important; opacity:1!important; visibility:visible!important;
+    width:1600px; height:900px; page-break-after:always; break-after:page;
+  }
+  .slide .rv{ opacity:1!important; transform:none!important; animation:none!important; }
+  .bg img{ animation:none!important; transform:scale(1.06)!important; }
+  #hud,#help,#progress,#overview,#notes{ display:none!important; }
+}

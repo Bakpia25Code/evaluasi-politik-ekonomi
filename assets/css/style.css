@@ -1,0 +1,137 @@
+*,*::before,*::after{ box-sizing:border-box; margin:0; padding:0; }
+
+html,body{
+  height:100%; overflow:hidden;
+  background:var(--bg); color:var(--txt);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* --- Panggung tetap 1600x900, diskalakan JS --- */
+#viewport{ position:fixed; inset:0; display:grid; place-items:center; background:var(--bg); }
+#stage{
+  position:relative; width:1600px; height:900px;
+  transform-origin:center center;
+  overflow:hidden; background:var(--bg);
+}
+
+/* --- Slide --- */
+.slide{
+  position:absolute; inset:0;
+  padding:74px 96px;
+  display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .45s ease, visibility .45s;
+}
+.slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
+.slide.full{ padding:0; }                    /* untuk slide foto penuh */
+
+.inner{ position:relative; z-index:2; display:flex; flex-direction:column; height:100%; }
+
+/* PENTING: pembungkus ini memusatkan isi secara vertikal.
+   Slide tanpa .body isinya menumpuk di atas dan menyisakan ruang kosong. */
+.body{ flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center; }
+
+.shead{ margin-bottom:34px; flex:none; }
+.sfoot{ flex:none; margin-top:24px; padding-top:16px; border-top:1px solid var(--line); }
+
+/* --- Latar foto penuh + Ken Burns --- */
+.bg{ position:absolute; inset:0; overflow:hidden; z-index:0; }
+.bg img{ width:100%; height:100%; object-fit:cover; transform:scale(1.06); }
+.slide.active .bg img{ animation:kenburns 22s ease-out forwards; }
+@keyframes kenburns{ from{transform:scale(1.06)} to{transform:scale(1.18)} }
+.scrim{ position:absolute; inset:0; }
+
+/* --- Animasi masuk bertahap --- */
+.rv{ opacity:0; transform:translateY(26px); }
+.slide.active .rv{ animation:rise .72s cubic-bezier(.2,.75,.25,1) forwards; }
+@keyframes rise{ to{opacity:1; transform:none} }
+.slide.active .rv:nth-child(1){animation-delay:.06s}
+.slide.active .rv:nth-child(2){animation-delay:.15s}
+.slide.active .rv:nth-child(3){animation-delay:.24s}
+.slide.active .rv:nth-child(4){animation-delay:.33s}
+.slide.active .rv:nth-child(5){animation-delay:.42s}
+.slide.active .rv:nth-child(6){animation-delay:.51s}
+.d1{animation-delay:.10s!important}.d2{animation-delay:.20s!important}
+.d3{animation-delay:.30s!important}.d4{animation-delay:.40s!important}
+.d5{animation-delay:.50s!important}.d6{animation-delay:.60s!important}
+.d7{animation-delay:.70s!important}.d8{animation-delay:.80s!important}
+
+/* --- Cetak / ekspor PDF --- */
+@media print{
+  @page{ size:1600px 900px; margin:0; }
+  html,body{ overflow:visible; height:auto; background:#fff; }
+  #viewport{ position:static; display:block; background:none; }
+  #stage{ width:1600px!important; height:auto!important; transform:none!important; }
+  .slide{
+    position:relative!important; opacity:1!important; visibility:visible!important;
+    width:1600px; height:900px; page-break-after:always; break-after:page;
+  }
+  .slide .rv{ opacity:1!important; transform:none!important; animation:none!important; }
+  .bg img{ animation:none!important; transform:scale(1.06)!important; }
+  #hud,#help,#progress,#overview,#notes{ display:none!important; }
+}
+
+/* TEMA: kertas arsip 1945 — krem hangat + merah bendera + tinta biru-hitam.
+   Alasan: materi sejarah awal kemerdekaan; terang agar terbaca di proyektor.
+   Motif: pita merah-putih di tepi kiri. Font sistem serif untuk judul. */
+:root{--bg:#f6efe0;--txt:#1c2233;--mut:#5b6073;--red:#b3201f;--ink:#1c2233;--gold:#c58b1a;--line:#d8cdb4;--card:#fffaf0;
+--sans:"Helvetica Neue",Arial,sans-serif;--serif:Georgia,"Times New Roman",serif}
+#stage::before{content:"";position:absolute;left:0;top:0;bottom:0;width:26px;background:linear-gradient(#b3201f 50%,#fffaf0 50%);border-right:2px solid var(--ink);z-index:3}
+.slide{padding:70px 100px 60px 126px}
+h1,h2{font-family:var(--serif);color:var(--ink);line-height:1.1}
+h2{font-size:68px;font-weight:700}
+h2 em{color:var(--red);font-style:normal}
+.kick{font-size:26px;letter-spacing:.14em;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:14px}
+.big{font-size:44px;line-height:1.35}
+.mid{font-size:36px;line-height:1.4}
+.sfoot{font-size:20px;color:var(--mut)}
+.cover h1{font-size:104px;font-weight:700;margin:18px 0 26px}
+.cover h1 em{color:var(--red);font-style:normal}
+.cover .sub{font-size:40px;color:var(--mut)}
+.cover .meta{font-size:28px;margin-top:40px;color:var(--ink)}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+.names div{background:var(--card);border:2px solid var(--line);border-left:10px solid var(--red);padding:28px 30px;font-size:38px;font-family:var(--serif);font-weight:700}
+.names small{display:block;font-family:var(--sans);font-weight:400;font-size:26px;color:var(--mut);margin-top:6px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.card{background:var(--card);border:2px solid var(--line);padding:30px 32px;border-top:10px solid var(--ink)}
+.card.r{border-top-color:var(--red)}.card.g{border-top-color:var(--gold)}
+.card h3{font-family:var(--serif);font-size:42px;margin-bottom:8px}
+.card .yr{font-size:30px;color:var(--red);font-weight:700;margin-bottom:12px}
+.card p{font-size:32px;line-height:1.35}
+.row{display:grid;grid-template-columns:330px 120px 1fr;gap:24px;align-items:center;background:var(--card);border:2px solid var(--line);padding:22px 30px;margin-bottom:18px}
+.row b{font-size:34px;font-family:var(--serif)}
+.row p{font-size:30px;line-height:1.3}
+.sc{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:48px;font-weight:700;color:#fff;font-family:var(--serif)}
+.s1{background:#b3201f}.s2{background:#d9772b}.s3{background:#8a9a2e}.s4{background:#2f7d4f}
+table{width:100%;border-collapse:collapse;font-size:38px}
+th{font-size:28px;text-align:center;color:var(--mut);padding:12px;border-bottom:3px solid var(--ink)}
+th:first-child,td:first-child{text-align:left}
+td{padding:20px 12px;border-bottom:2px solid var(--line);text-align:center}
+td:first-child{font-family:var(--serif);font-weight:700}
+td .sc{width:70px;height:70px;font-size:40px;margin:0 auto}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+.vbox{padding:40px 44px;border:3px solid var(--ink);background:var(--card)}
+.vbox.win{border-color:#2f7d4f}.vbox.lose{border-color:var(--red)}
+.vbox .tag{font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.win .tag{color:#2f7d4f}.lose .tag{color:var(--red)}
+.vbox h3{font-family:var(--serif);font-size:54px;line-height:1.1;margin-bottom:20px}
+.vbox li{font-size:34px;line-height:1.4;margin-left:34px;margin-bottom:8px}
+.pts li{font-size:40px;line-height:1.35;margin:0 0 22px 44px}
+.pts li::marker{color:var(--red)}
+.quote{font-family:var(--serif);font-size:60px;line-height:1.25;border-left:10px solid var(--red);padding-left:44px}
+.src{font-size:30px;line-height:1.5}.src li{margin:0 0 14px 40px}
+#progress{position:fixed;top:0;left:0;height:6px;background:var(--red);z-index:20;transition:width .4s}
+#hud{position:fixed;right:18px;bottom:14px;display:flex;gap:10px;align-items:center;font-size:16px;color:var(--mut);z-index:20;transition:opacity .4s}
+body.idle #hud,body.idle #help{opacity:0}
+.navbtn{border:1px solid var(--line);background:var(--card);width:34px;height:34px;font-size:20px;cursor:pointer;border-radius:6px}
+#help{position:fixed;left:14px;bottom:12px;font-size:14px;color:var(--mut);z-index:20;transition:opacity .4s}
+kbd{border:1px solid var(--line);padding:1px 5px;border-radius:4px;background:var(--card)}
+#overview{position:fixed;inset:0;background:rgba(246,239,224,.97);z-index:30;display:none;overflow:auto;padding:30px}
+#overview.on{display:block}
+.oh h4{font-size:26px}.oh p{color:var(--mut);margin-bottom:16px}
+.ogrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.othumb{background:var(--card);border:2px solid var(--line);padding:14px;cursor:pointer}
+.othumb.cur{border-color:var(--red)}.on{font-weight:700;color:var(--red)}.ot{font-weight:700;margin:4px 0}.os{font-size:14px;color:var(--mut)}
+#notes{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;z-index:25;padding:16px 28px;display:none;font-size:20px;max-height:40vh;overflow:auto}
+#notes.on{display:block}.nh{font-size:14px;opacity:.6;margin-bottom:6px}
